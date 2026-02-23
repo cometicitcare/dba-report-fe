@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
 
   // Derive backend origin from VITE_API_BASE_URL for the dev proxy
   // e.g. "http://localhost:8000/api/v1" → "http://localhost:8000"
-  const apiUrl = env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
+  const apiUrl = env.VITE_API_BASE_URL || 'https://dba-report-be-production.up.railway.app/api/v1'
   const backendOrigin = apiUrl.replace(/\/api\/v1.*$/, '')
 
   return {
