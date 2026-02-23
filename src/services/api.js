@@ -4,7 +4,7 @@ import axios from 'axios';
 // .env:  VITE_API_BASE_URL=http://localhost:8000/api/v1
 // Railway: set VITE_API_BASE_URL=https://your-backend.up.railway.app/api/v1
 const BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+  import.meta.env.VITE_API_BASE_URL || 'https://dba-report-be-production.up.railway.app/api/v1';
 
 // ── Auth token helpers (sessionStorage clears on tab close) ──
 const TOKEN_KEY = 'dba_access_token';
