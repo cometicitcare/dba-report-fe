@@ -27,6 +27,7 @@ export default defineConfig(({ mode }) => {
       // Used by "vite preview" (Railway start command)
       port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
       host: '0.0.0.0',
+      allowedHosts: ['dba-report-fe-production.up.railway.app'],
     },
     build: {
       outDir: 'dist',
