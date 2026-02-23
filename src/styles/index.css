@@ -1,0 +1,247 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for Buddhist Affairs Dashboard */
+
+/* Print header: hidden on screen, shown only when printing */
+.print-header { display: none; }
+
+/* ─── Print styles ─────────────────────────────────────── */
+@media print {
+
+  /* ── 1. Hide all UI chrome ───────────────────────────── */
+  .no-print { display: none !important; }
+  header, footer { display: none !important; }
+
+  /* ── 2. Page body ────────────────────────────────────── */
+  body {
+    background: white !important;
+    font-size: 10pt;
+    color: #111 !important;
+  }
+
+  /* Remove all shadows, borders-radius, sticky */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  header, nav, aside { position: static !important; }
+  .rounded-lg, .rounded-2xl, .rounded-xl, .rounded-full { border-radius: 4px !important; }
+
+  /* ── 3. Expand ALL scroll / height-limited containers ── */
+  /* Tailwind max-h classes */
+  [class*="max-h-"] {
+    max-height: none !important;
+    height: auto !important;
+  }
+  /* Tailwind overflow classes */
+  [class*="overflow-y-auto"],
+  [class*="overflow-auto"],
+  [class*="overflow-x-auto"] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  /* CardContent scroll wrappers */
+  .overflow-y-auto, .overflow-auto, .overflow-x-auto {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  /* ── 4. Show print-only header ───────────────────────── */
+  .print-header {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0 14px;
+    border-bottom: 2.5px solid #d97706;
+    margin-bottom: 18px;
+  }
+
+  /* ── 5. Tables ───────────────────────────────────────── */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    page-break-inside: auto;
+  }
+  thead { display: table-header-group; }
+  tr { page-break-inside: avoid; }
+  th, td {
+    padding: 4px 8px !important;
+    font-size: 9pt !important;
+    border: 1px solid #e5e7eb !important;
+  }
+  thead th {
+    background: #f9fafb !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ── 6. Grid & card layout ───────────────────────────── */
+  .grid { display: grid !important; }
+  .bg-white { background: white !important; }
+  .border { border: 1px solid #e5e7eb !important; }
+
+  /* ── 7. Page breaks ──────────────────────────────────── */
+  .space-y-6 > *, .space-y-4 > * { break-inside: avoid; }
+  h3, h4 { break-after: avoid; }
+
+  /* ── 8. Colour printing for coloured headers ─────────── */
+  [class*="bg-gradient"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  [class*="from-amber"], [class*="from-violet"], [class*="from-blue"],
+  [class*="from-teal"], [class*="from-pink"], [class*="from-indigo"] {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page { margin: 14mm 12mm; size: A4 portrait; }
+}
+
+body {
+  font-family: 'Inter', 'Noto Sans Sinhala', system-ui, sans-serif;
+  background-color: #f8fafc;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Dashboard specific styles */
+.dashboard-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100 p-4 transition-all duration-200;
+}
+
+.dashboard-card:hover {
+  @apply shadow-md border-gray-200;
+}
+
+.stat-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100 p-4 cursor-pointer transition-all duration-200;
+}
+
+.stat-card:hover {
+  @apply shadow-md border-saffron-300 bg-saffron-50;
+}
+
+.stat-card.active {
+  @apply border-saffron-500 bg-saffron-50 shadow-md;
+}
+
+/* Table styles */
+.dashboard-table {
+  @apply w-full text-sm text-left text-gray-700;
+}
+
+.dashboard-table thead {
+  @apply text-xs text-gray-600 uppercase bg-gray-50;
+}
+
+.dashboard-table th {
+  @apply px-4 py-3 font-medium;
+}
+
+.dashboard-table td {
+  @apply px-4 py-3;
+}
+
+.dashboard-table tbody tr {
+  @apply border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors;
+}
+
+.dashboard-table tbody tr.active {
+  @apply bg-saffron-50;
+}
+
+/* Section headers */
+.section-header {
+  @apply text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2;
+}
+
+.section-number {
+  @apply inline-flex items-center justify-center w-7 h-7 rounded-full bg-saffron-500 text-white text-sm font-bold;
+}
+
+/* Clickable items */
+.clickable-item {
+  @apply cursor-pointer transition-all duration-150;
+}
+
+.clickable-item:hover {
+  @apply text-saffron-600;
+}
+
+/* Loading animation */
+.loading-pulse {
+  @apply animate-pulse bg-gray-200 rounded;
+}
+
+/* Temple profile */
+.profile-section {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-4;
+}
+
+.profile-label {
+  @apply text-sm text-gray-500 font-medium;
+}
+
+.profile-value {
+  @apply text-base text-gray-900;
+}
+
+/* Charts */
+.chart-container {
+  @apply bg-white rounded-lg shadow-sm border border-gray-100 p-4;
+}
+
+/* Responsive grid */
+.dashboard-grid {
+  @apply grid gap-4;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* Badge styles */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-success {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.badge-error {
+  @apply bg-red-100 text-red-800;
+}
+
+.badge-info {
+  @apply bg-blue-100 text-blue-800;
+}
+
+/* Sinhala text support */
+.sinhala-text {
+  font-family: 'Noto Sans Sinhala', sans-serif;
+}
