@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
 
   // Derive backend origin from VITE_API_BASE_URL for the dev proxy
   // e.g. "http://localhost:8000/api/v1" → "http://localhost:8000"
-  const _rawApiUrl = env.VITE_API_BASE_URL || 'https://dba-report-be-production.up.railway.app/api/v1'
+  const _rawApiUrl = env.VITE_API_BASE_URL || 'https://report-api.dbagovlk.com/api/v1'
   // Force HTTPS for non-localhost URLs to prevent Mixed Content errors
   const apiUrl = _rawApiUrl.startsWith('http://')
     && !_rawApiUrl.includes('localhost')
@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => {
       // Used by "vite preview" (Railway start command)
       port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
       host: '0.0.0.0',
-      allowedHosts: ['dba-report-fe-production.up.railway.app'],
+      allowedHosts: ['dba-report-fe-production.up.railway.app', 'reports.dbagovlk.com'],
     },
     build: {
       outDir: 'dist',

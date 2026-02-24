@@ -4,7 +4,7 @@ import axios from 'axios';
 // .env:  VITE_API_BASE_URL=http://localhost:8000/api/v1
 // Railway: set VITE_API_BASE_URL=https://your-backend.up.railway.app/api/v1
 const _RAW_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://dba-report-be-production.up.railway.app/api/v1';
+  import.meta.env.VITE_API_BASE_URL || 'https://report-api.dbagovlk.com/api/v1';
 
 // Force HTTPS for any non-localhost URL to prevent Mixed Content errors.
 // This corrects cases where Railway's VITE_API_BASE_URL is accidentally set to http://.
