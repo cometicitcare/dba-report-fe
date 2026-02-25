@@ -86,14 +86,25 @@ function Tab1Content({ showTempleProfile }) {
       {showTempleProfile && <Section4TempleProfile />}
       {!showTempleProfile && (
         <>
+          {/* Print button — hidden when printing */}
+          <div className="no-print flex justify-end">
+            <PrintButton label="Print Summary" />
+          </div>
+
           {/* Row 1: Summary A / B / C */}
           <Section1Overall />
 
           {/* Divider */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 no-print">
             <div className="flex-1 border-t border-gray-200" />
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest px-2">Detail Summaries</span>
             <div className="flex-1 border-t border-gray-200" />
+          </div>
+          {/* Print-only divider label */}
+          <div className="print-only-block" style={{ display: 'none' }}>
+            <div style={{ borderTop: '1.5px solid #d97706', margin: '12px 0 8px', textAlign: 'center' }}>
+              <span style={{ fontSize: '9pt', color: '#92400e', fontWeight: 600, textTransform: 'uppercase', letterSpacing: 2 }}>Detail Summaries</span>
+            </div>
           </div>
 
           {/* Row 2+: Bhikku Types / Dahampasal / Teachers / Students + Province + District */}
@@ -126,9 +137,11 @@ function Tab2Content() {
       {/* Summary tables — react only to Display click */}
       <Tab2Summary appliedFilters={appliedFilters} />
 
-      {/* Entity selection — only shown after Display */}
+      {/* Entity selection — only shown after Display, hidden when printing */}
       {appliedFilters !== null && (
-        <Section3Selection appliedFilters={appliedFilters} />
+        <div className="no-print">
+          <Section3Selection appliedFilters={appliedFilters} />
+        </div>
       )}
     </div>
   );

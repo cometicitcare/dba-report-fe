@@ -47,7 +47,7 @@ function ParshawaList({ onSelect, selectedParshawa, appliedFilters }) {
   }
 
   return (
-    <Card>
+/*     <Card>
       <CardHeader title="Parshawa" subtitle="ස්ථානය අනුව" icon={Building} />
       <CardContent className="p-0 max-h-64 overflow-y-auto">
         <Table
@@ -60,7 +60,8 @@ function ParshawaList({ onSelect, selectedParshawa, appliedFilters }) {
           emptyMessage="No parshawa data"
         />
       </CardContent>
-    </Card>
+    </Card> */
+    ''
   );
 }
 
@@ -87,17 +88,18 @@ function SsbmList({ onSelect, selectedSsbm, appliedFilters }) {
 
   if (!isEnabled) {
     return (
-      <Card>
+/*       <Card>
         <CardHeader title="SSBM" subtitle="ශාසනරක්ෂක සභා" icon={TreeDeciduous} />
         <CardContent>
           <p className="text-gray-500 text-center py-8 text-sm">Select a District or Div. Secretariat first</p>
         </CardContent>
-      </Card>
+      </Card> */
+      ''
     );
   }
 
   return (
-    <Card>
+   /*  <Card>
       <CardHeader title="SSBM" subtitle="ශාසනරක්ෂක සභා" icon={TreeDeciduous} />
       <CardContent className="p-0 max-h-64 overflow-y-auto">
         <Table
@@ -110,7 +112,8 @@ function SsbmList({ onSelect, selectedSsbm, appliedFilters }) {
           emptyMessage="No SSBM data for selected area"
         />
       </CardContent>
-    </Card>
+    </Card> */
+    ''
   );
 }
 
@@ -144,7 +147,7 @@ function DvsecList({ onSelect, selectedDvsec, appliedFilters }) {
   }
 
   return (
-    <Card>
+   /*  <Card>
       <CardHeader title="Divisional Secretariat" subtitle="ප්‍රාදේශීය ලේකම් කොට්ඨාස" icon={MapPin} />
       <CardContent className="p-0 max-h-64 overflow-y-auto">
         <Table
@@ -157,7 +160,8 @@ function DvsecList({ onSelect, selectedDvsec, appliedFilters }) {
           emptyMessage="No data"
         />
       </CardContent>
-    </Card>
+    </Card> */
+    ''
   );
 }
 
@@ -180,7 +184,7 @@ function GnList({ onSelect, selectedGn, dvsecId, appliedFilters }) {
     { key: 'arama_count',   header: 'Arama',    render: num },
   ];
 
-  if (!effectiveDsCode) {
+/*   if (!effectiveDsCode) {
     return (
       <Card>
         <CardHeader title="GN Division" subtitle="ග්‍රාම නිලධාරි වසම" icon={Home} />
@@ -189,10 +193,10 @@ function GnList({ onSelect, selectedGn, dvsecId, appliedFilters }) {
         </CardContent>
       </Card>
     );
-  }
+  } */
 
   return (
-    <Card>
+/*     <Card>
       <CardHeader title="GN Division" subtitle="ග්‍රාම නිලධාරි වසම" icon={Home} />
       <CardContent className="p-0 max-h-64 overflow-y-auto">
         <Table
@@ -205,7 +209,8 @@ function GnList({ onSelect, selectedGn, dvsecId, appliedFilters }) {
           emptyMessage="No GN divisions for selected area"
         />
       </CardContent>
-    </Card>
+    </Card> */
+    ''
   );
 }
 

@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Users, GraduationCap, Building2,
   Building, MapPin, Book, UserCheck, BarChart2,
-  TreeDeciduous, Home,
+  Home,
 } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList,
 } from 'recharts';
 import { section1Api, section2Api, section3Api } from '../../services/api';
 import { Table, LoadingSection, Error } from '../common';
@@ -42,6 +42,21 @@ const CustomTooltip = ({ active, payload }) => {
   );
 };
 
+// ─── Pie slice data label (shown on each slice, replaces legend in print) ──
+const renderPieLabel = ({ cx, cy, midAngle, outerRadius, value }) => {
+  if (!value) return null;
+  const RADIAN = Math.PI / 180;
+  const r = outerRadius + 18;
+  const x = cx + r * Math.cos(-midAngle * RADIAN);
+  const y = cy + r * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="#374151" textAnchor={x > cx ? 'start' : 'end'}
+      dominantBaseline="central" fontSize={9} fontWeight={600}>
+      {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
+    </text>
+  );
+};
+
 // ─── Mini donut pie ───────────────────────────────────────────
 function MiniDonut({ slices, palette, height = 168 }) {
   if (!slices || slices.length === 0) return null;
@@ -56,6 +71,8 @@ function MiniDonut({ slices, palette, height = 168 }) {
           cx="50%" cy="46%"
           innerRadius={42} outerRadius={64}
           paddingAngle={2}
+          label={renderPieLabel}
+          labelLine={false}
         >
           {slices.map((entry, i) => (
             <Cell key={entry.key ?? i} fill={palette[i % palette.length]} />
@@ -85,7 +102,7 @@ function GeoBarChart({ slices, palette, angleLabels = false, height = 220 }) {
     <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={slices}
-        margin={{ top: 8, right: 12, left: 0, bottom: angleLabels ? 64 : 8 }}
+        margin={{ top: 18, right: 12, left: 0, bottom: angleLabels ? 64 : 8 }}
       >
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
         <XAxis
@@ -106,6 +123,12 @@ function GeoBarChart({ slices, palette, angleLabels = false, height = 220 }) {
           {slices.map((entry, i) => (
             <Cell key={entry.key ?? i} fill={palette[i % palette.length]} />
           ))}
+          <LabelList
+            dataKey="value"
+            position="top"
+            style={{ fontSize: 9, fill: '#374151', fontWeight: 600 }}
+            formatter={v => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}
+          />
         </Bar>
       </BarChart>
     </ResponsiveContainer>
@@ -166,6 +189,8 @@ function GeoDonutCard({ title, subtitle, icon: Icon, accentColor = 'violet', sli
                   cx="50%" cy="50%"
                   innerRadius={48} outerRadius={78}
                   paddingAngle={2}
+                  label={renderPieLabel}
+                  labelLine={false}
                 >
                   {slices.map((entry, i) => (
                     <Cell key={entry.key ?? i} fill={palette[i % palette.length]} />
@@ -208,6 +233,67 @@ function GeoDonutCard({ title, subtitle, icon: Icon, accentColor = 'violet', sli
   );
 }
 
+// ─── Grouped bar chart — 4 series: Vihara / Bhikku / Silmatha / Arama ──────
+function GeoMultiBarChart({ rows, angleLabels = false, height = 240 }) {
+  if (!rows || rows.length === 0) return null;
+  const chartData = rows.map(r => ({
+    label:    r.label,
+    Vihara:   r.vihara   || 0,
+    Bhikku:   r.bikku    || 0,
+    Silmatha: r.silmatha || 0,
+    Arama:    r.arama    || 0,
+  }));
+  const SERIES = [
+    { key: 'Vihara',   color: '#3b82f6' },
+    { key: 'Bhikku',  color: '#f59e0b' },
+    { key: 'Silmatha', color: '#10b981' },
+    { key: 'Arama',   color: '#8b5cf6' },
+  ];
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <BarChart
+        data={chartData}
+        margin={{ top: 18, right: 12, left: 0, bottom: angleLabels ? 68 : 8 }}
+      >
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+        <XAxis
+          dataKey="label"
+          tick={{
+            fontSize: 10, fill: '#6b7280',
+            ...(angleLabels ? { angle: -40, textAnchor: 'end', dy: 4 } : {}),
+          }}
+          axisLine={false} tickLine={false} interval={0}
+        />
+        <YAxis
+          tick={{ fontSize: 10, fill: '#9ca3af' }}
+          tickFormatter={v => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}
+          axisLine={false} tickLine={false} width={36}
+        />
+        <Tooltip
+          formatter={(value, name) => [value.toLocaleString(), name]}
+          labelStyle={{ fontSize: 11, fontWeight: 600, color: '#1f2937' }}
+          contentStyle={{ fontSize: 11, borderRadius: 8, border: '1px solid #e5e7eb' }}
+        />
+        <Legend
+          iconType="circle" iconSize={7}
+          formatter={v => <span style={{ fontSize: 10, color: '#6b7280' }}>{v}</span>}
+          wrapperStyle={{ paddingTop: 4 }}
+        />
+        {SERIES.map(s => (
+          <Bar key={s.key} dataKey={s.key} fill={s.color} radius={[3, 3, 0, 0]} maxBarSize={18}>
+            <LabelList
+              dataKey={s.key}
+              position="top"
+              style={{ fontSize: 8, fill: '#374151', fontWeight: 600 }}
+              formatter={v => (v > 0 ? (v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v) : '')}
+            />
+          </Bar>
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
 // ─── Geo summary card — gradient header + bar chart + table ──
 // rows (optional): [{ key, label, vihara, bikku, silmatha, arama }] — renders 4-col table
 function GeoSummaryCard({ title, subtitle, icon: Icon, accentColor = 'violet', slices, palette, rows, isLoading, error, onRetry, angleLabels = false }) {
@@ -237,10 +323,14 @@ function GeoSummaryCard({ title, subtitle, icon: Icon, accentColor = 'violet', s
 
       {slices.length > 0 ? (
         <>
-          {/* Column bar chart */}
+          {/* Column bar chart — grouped (Vihara/Bhikku/Silmatha/Arama) when rows present */}
           <div className="px-3 pt-3">
-            <GeoBarChart slices={slices} palette={palette} angleLabels={angleLabels}
-              height={slices.length > 12 ? 260 : 200} />
+            {rows && rows.length > 0
+              ? <GeoMultiBarChart rows={rows} angleLabels={angleLabels}
+                  height={rows.length > 12 ? 300 : 260} />
+              : <GeoBarChart slices={slices} palette={palette} angleLabels={angleLabels}
+                  height={slices.length > 12 ? 260 : 200} />
+            }
           </div>
 
           {/* Data table */}
@@ -402,7 +492,7 @@ function Section1Tables({ appliedFilters }) {
   ];
 
   return (
-    <div className="grid gap-4 lg:grid-cols-3">
+    <div className="grid gap-4 lg:grid-cols-2">
       <SummaryTable
         title="Summary A — Types"
         subtitle="Entity types"
@@ -586,7 +676,7 @@ function Section2GeoTables({ appliedFilters }) {
   const distSlices = distRows.map(r => ({ key: r.key, label: r.label, value: r.vihara }));
 
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
+    <div className="grid gap-4 grid-cols-1">
       <GeoSummaryCard
         title={appliedFilters?.province_code ? 'Province (Selected)' : 'By Province / පළාත් අනුව'}
         subtitle="Vihara distribution by province"
@@ -625,27 +715,75 @@ function Section2GeoTables({ appliedFilters }) {
 }
 
 // ------------------------------------------------------------
-// Section 3 — SSBM / Divisional Secretariat / GN Division
+// GN Division coloured grid card — no chart, grid of mini-cards
+// ------------------------------------------------------------
+function GnGridCard({ title, subtitle, icon: Icon, accentColor = 'emerald', rows, palette, isLoading, error, onRetry }) {
+  const accent = accentMap[accentColor] || accentMap.emerald;
+  const total  = (rows || []).reduce((s, r) => s + r.vihara, 0);
+
+  if (isLoading) return <LoadingSection height="200px" />;
+  if (error)     return <Error message={error.message} onRetry={onRetry} />;
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+      {/* Gradient header */}
+      <div className={`bg-gradient-to-r ${accent.header} px-4 py-3 flex items-center gap-3`}>
+        {Icon && (
+          <div className="p-1.5 bg-white/20 rounded-lg">
+            <Icon className="w-4 h-4 text-white" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-bold text-white leading-tight">{title}</h3>
+          {subtitle && <p className="text-xs text-white/75 mt-0.5">{subtitle}</p>}
+        </div>
+        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-white/20 text-white tabular-nums">
+          {total.toLocaleString()}
+        </span>
+      </div>
+
+      {rows && rows.length > 0 ? (
+        <div className="p-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 overflow-y-auto max-h-[480px]">
+          {rows.map((item, i) => (
+            <div
+              key={item.key}
+              style={{ borderLeftColor: palette[i % palette.length] }}
+              className="flex flex-col gap-1 px-3 py-2 rounded-xl border-l-4 border border-gray-100 bg-gray-50"
+            >
+              {/* GN name */}
+              <span
+                className="text-xs font-semibold leading-tight truncate"
+                style={{ color: palette[i % palette.length] }}
+                title={item.label}
+              >
+                {item.label}
+              </span>
+              {/* 4-count mini grid */}
+              <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 mt-1">
+                <span className="text-[10px] text-gray-400">Vihara</span>
+                <span className="text-[10px] font-bold text-gray-800 tabular-nums text-right">{item.vihara.toLocaleString()}</span>
+                <span className="text-[10px] text-gray-400">Bhikku</span>
+                <span className="text-[10px] text-gray-600 tabular-nums text-right">{item.bikku.toLocaleString()}</span>
+                <span className="text-[10px] text-gray-400">Silmatha</span>
+                <span className="text-[10px] text-gray-600 tabular-nums text-right">{item.silmatha.toLocaleString()}</span>
+                <span className="text-[10px] text-gray-400">Arama</span>
+                <span className="text-[10px] text-gray-600 tabular-nums text-right">{item.arama.toLocaleString()}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center py-10 text-gray-400 text-sm">No data available</div>
+      )}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------
+// Section 3 — GN Division
 // ------------------------------------------------------------
 function Section3GeoTables({ appliedFilters }) {
-  const hasDistrict = !!appliedFilters?.district_code;
-  const hasDs       = !!appliedFilters?.ds_code;
-
-  const { data: ssbmData, isLoading: ssbmLoading, error: ssbmError, refetch: ssbmRefetch } = useQuery({
-    queryKey: ['tab2-ssbm', appliedFilters],
-    queryFn: () => section3Api.getSsbmOrgList({
-      provinceCode: appliedFilters?.province_code,
-      districtCode: appliedFilters?.district_code,
-      dsCode:       appliedFilters?.ds_code,
-    }),
-    enabled: hasDistrict,
-  });
-
-  const { data: dsData, isLoading: dsLoading, error: dsError, refetch: dsRefetch } = useQuery({
-    queryKey: ['tab2-ds', appliedFilters?.district_code],
-    queryFn: () => section3Api.getDivisionalSecretariat(appliedFilters?.district_code, appliedFilters),
-    enabled: hasDistrict,
-  });
+  const hasDs = !!appliedFilters?.ds_code;
 
   const { data: gnData, isLoading: gnLoading, error: gnError, refetch: gnRefetch } = useQuery({
     queryKey: ['tab2-gn', appliedFilters?.ds_code],
@@ -653,75 +791,150 @@ function Section3GeoTables({ appliedFilters }) {
     enabled: hasDs,
   });
 
-  // Build slices for each entity
-  const ssbmSlices = (ssbmData || [])
+  const gnRows = (gnData || [])
     .filter(r => (r.vihara_count || 0) > 0)
-    .map(r => ({ key: r.ssbm_code, label: r.ssbm_name, value: r.vihara_count || 0 }));
+    .map(r => ({
+      key:      r.gn_code,
+      label:    r.gn_name,
+      vihara:   r.vihara_count   || 0,
+      bikku:    r.bhikku_count   || 0,
+      silmatha: r.silmatha_count || 0,
+      arama:    r.arama_count    || 0,
+    }));
 
-  const dsSlices = (dsData || [])
-    .filter(r => (r.vihara_count || 0) > 0)
-    .map(r => ({ key: r.ds_code, label: r.ds_name, value: r.vihara_count || 0 }));
-
-  const gnSlices = (gnData || [])
-    .filter(r => (r.vihara_count || 0) > 0)
-    .map(r => ({ key: r.gn_code, label: r.gn_name, value: r.vihara_count || 0 }));
-
-  if (!hasDistrict && !hasDs) return null;
+  if (!hasDs) return null;
 
   return (
-    <div className="space-y-4">
-      {/* SSBM */}
-      {hasDistrict && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <GeoSummaryCard
-              title="SSBM / ශාසනරක්ෂක සභා"
-              subtitle="Sasanarakshaka Bala Mandala"
-              icon={TreeDeciduous}
-              accentColor="indigo"
-              slices={ssbmSlices}
-              palette={PALETTE_B}
-              isLoading={ssbmLoading}
-              error={ssbmError}
-              onRetry={ssbmRefetch}
-              angleLabels
-            />
-        </div>
-      )}
-
-      {/* Divisional Secretariat & GN Division */}
-      {(hasDistrict || hasDs) && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {hasDistrict && (
-            <GeoSummaryCard
-              title="Divisional Secretariat / ප්‍රා. ලේකම්"
-              subtitle="By District"
-              icon={MapPin}
-              accentColor="rose"
-              slices={dsSlices}
-              palette={PALETTE_GEO}
-              isLoading={dsLoading}
-              error={dsError}
-              onRetry={dsRefetch}
-              angleLabels
-            />
-          )}
-          {hasDs && (
-            <GeoSummaryCard
-              title="GN Division / ග්‍රාම නිලධාරී"
-              subtitle="Grama Niladhari Divisions"
-              icon={Home}
-              accentColor="emerald"
-              slices={gnSlices}
-              palette={PALETTE_C}
-              isLoading={gnLoading}
-              error={gnError}
-              onRetry={gnRefetch}
-              angleLabels
-            />
-          )}
-        </div>
-      )}
+    <div>
+      <GnGridCard
+        title="GN Division / ග්‍රාම නිලධාරී"
+        subtitle="Grama Niladhari Divisions"
+        icon={Home}
+        accentColor="emerald"
+        rows={gnRows}
+        palette={PALETTE_GEO}
+        isLoading={gnLoading}
+        error={gnError}
+        onRetry={gnRefetch}
+      />
     </div>
+  );
+}
+
+// ------------------------------------------------------------
+// Section 3 summary — Parshawa / SSBM / Div. Secretariat (colored GnGridCard style)
+// ------------------------------------------------------------
+function Section3GridCards({ appliedFilters }) {
+  const hasAny  = !!(
+    appliedFilters?.province_code  ||
+    appliedFilters?.district_code  ||
+    appliedFilters?.nikaya_code    ||
+    appliedFilters?.ds_code        ||
+    appliedFilters?.gn_code        ||
+    appliedFilters?.ssbm_code      ||
+    appliedFilters?.parshawa_code  ||
+    appliedFilters?.grade
+  );
+  const hasDist = !!appliedFilters?.district_code;
+  const hasDs   = !!appliedFilters?.ds_code;
+  const hasSsbm = !!appliedFilters?.ssbm_code;
+
+  const { data: parshawaData, isLoading: pLoad, error: pErr, refetch: pRefetch } = useQuery({
+    queryKey: ['tab2-parshawa', appliedFilters],
+    queryFn: () => {
+      const params = {};
+      if (appliedFilters?.nikaya_code)   params.nikaya_code   = appliedFilters.nikaya_code;
+      if (appliedFilters?.province_code) params.province_code = appliedFilters.province_code;
+      if (appliedFilters?.district_code) params.district_code = appliedFilters.district_code;
+      if (appliedFilters?.ds_code)       params.ds_code       = appliedFilters.ds_code;
+      if (appliedFilters?.gn_code)       params.gn_code       = appliedFilters.gn_code;
+      if (appliedFilters?.ssbm_code)     params.ssbm_code     = appliedFilters.ssbm_code;
+      if (appliedFilters?.grade)         params.grade         = appliedFilters.grade;
+      return section3Api.getParshawa(params);
+    },
+    enabled: hasAny,
+  });
+
+  const { data: ssbmData, isLoading: sLoad, error: sErr, refetch: sRefetch } = useQuery({
+    queryKey: ['tab2-ssbm', appliedFilters?.province_code, appliedFilters?.district_code, appliedFilters?.ds_code, appliedFilters?.ssbm_code, appliedFilters?.nikaya_code, appliedFilters?.grade],
+    queryFn: () => section3Api.getSsbmOrgList({
+      provinceCode: appliedFilters?.province_code || null,
+      districtCode: appliedFilters?.district_code || null,
+      dsCode:       appliedFilters?.ds_code       || null,
+      ssbmCode:     appliedFilters?.ssbm_code     || null,
+      nikayaCode:   appliedFilters?.nikaya_code   || null,
+      grade:        appliedFilters?.grade         || null,
+    }),
+    enabled: hasDist || hasDs || hasSsbm,
+  });
+
+  const { data: dsData, isLoading: dLoad, error: dErr, refetch: dRefetch } = useQuery({
+    queryKey: ['tab2-ds', appliedFilters?.district_code, appliedFilters?.ds_code, appliedFilters?.ssbm_code, appliedFilters],
+    queryFn: () => section3Api.getDivisionalSecretariat(appliedFilters?.district_code, appliedFilters),
+    enabled: hasDist || hasDs || hasSsbm,
+  });
+
+  const toRows = (arr, codeKey, nameKey) =>
+    (arr || [])
+      .filter(r => (r.vihara_count || 0) > 0)
+      .map(r => ({
+        key:      r[codeKey],
+        label:    r[nameKey],
+        vihara:   r.vihara_count   || 0,
+        bikku:    r.bhikku_count   || 0,
+        silmatha: r.silmatha_count || 0,
+        arama:    r.arama_count    || 0,
+      }));
+
+  const parshawaRows = toRows(parshawaData, 'parshawa_code', 'parshawa_name');
+  const ssbmRows     = toRows(ssbmData,     'ssbm_code',     'ssbm_name');
+  const dsRows       = toRows(dsData,       'ds_code',       'ds_name');
+
+  if (!hasAny) return null;
+
+  return (
+    <div className="grid gap-4 grid-cols-1">
+      {hasAny && (
+        <GnGridCard
+          title="Parshawa / පාර්ශවය"
+          subtitle="Vihara distribution by Parshawa"
+          icon={Building2}
+          accentColor="amber"
+          rows={parshawaRows}
+          palette={PALETTE_A}
+          isLoading={pLoad}
+          error={pErr}
+          onRetry={pRefetch}
+        />
+      )}
+      {(hasDist || hasDs || hasSsbm) && (
+        <GnGridCard
+          title="SSBM / ශාසනරක්ෂක සභා"
+          subtitle="Vihara distribution by SSBM"
+          icon={Building}
+          accentColor="teal"
+          rows={ssbmRows}
+          palette={PALETTE_SEC3}
+          isLoading={sLoad}
+          error={sErr}
+          onRetry={sRefetch}
+        />
+      )}
+      {(hasDist || hasDs || hasSsbm) && (
+        <GnGridCard
+          title="Divisional Secretariat / ප්‍රා. ලේ."
+          subtitle="Vihara counts per Div. Secretariat"
+          icon={MapPin}
+          accentColor="rose"
+          rows={dsRows}
+          palette={PALETTE_GEO}
+          isLoading={dLoad}
+          error={dErr}
+          onRetry={dRefetch}
+        />
+      )}
+    </div> 
+    
   );
 }
 
@@ -774,15 +987,28 @@ export function Tab2Summary({ appliedFilters }) {
         <Section2GeoTables appliedFilters={appliedFilters} />
       </div>
 
-      {/* SSBM / Divisional Secretariat / GN Division */}
-      {(appliedFilters?.nikaya_code || appliedFilters?.province_code || appliedFilters?.district_code || appliedFilters?.ds_code) && (
+      {/* Parshawa, SSBM, Divisional Secretariat — colored grid cards */}
+      {!!(appliedFilters?.province_code || appliedFilters?.district_code || appliedFilters?.nikaya_code ||
+          appliedFilters?.ds_code || appliedFilters?.gn_code || appliedFilters?.ssbm_code ||
+          appliedFilters?.parshawa_code || appliedFilters?.grade) && (
         <div>
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 px-1">
-            Administrative Summary — SSBM · Div. Secretariat · GN Division
+            Administrative Summary — Parshawa · SSBM · Div. Secretariat
+          </h3>
+          <Section3GridCards appliedFilters={appliedFilters} />
+        </div>
+      )}
+
+      {/* GN Division — colored grid card */}
+      {!!appliedFilters?.ds_code && (
+        <div>
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3 px-1">
+            Administrative Summary — GN Division
           </h3>
           <Section3GeoTables appliedFilters={appliedFilters} />
         </div>
       )}
+
     </div>
   );
 }

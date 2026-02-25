@@ -25,6 +25,21 @@ const CustomTooltip = ({ active, payload }) => {
   );
 };
 
+// ─── Pie slice data label ─────────────────────────────────────
+const renderPieLabel = ({ cx, cy, midAngle, outerRadius, value }) => {
+  if (!value) return null;
+  const RADIAN = Math.PI / 180;
+  const r = outerRadius + 20;
+  const x = cx + r * Math.cos(-midAngle * RADIAN);
+  const y = cy + r * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="#374151" textAnchor={x > cx ? 'start' : 'end'}
+      dominantBaseline="central" fontSize={9} fontWeight={600}>
+      {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
+    </text>
+  );
+};
+
 // ─── Compact Donut Pie ─────────────────────────────────────────
 function CompactPie({ slices, palette, onSelect, selectedKey, height = 200 }) {
   if (!slices || slices.length === 0) return null;
@@ -39,6 +54,8 @@ function CompactPie({ slices, palette, onSelect, selectedKey, height = 200 }) {
           cx="50%" cy="50%"
           innerRadius={48} outerRadius={78}
           paddingAngle={2}
+          label={renderPieLabel}
+          labelLine={false}
           onClick={d => onSelect && onSelect(d.key)}
           style={{ cursor: onSelect ? 'pointer' : 'default' }}
         >

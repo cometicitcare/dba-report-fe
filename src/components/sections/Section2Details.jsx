@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Users, Building, MapPin, Book, UserCheck, GraduationCap, Heart } from 'lucide-react';
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, LabelList,
 } from 'recharts';
 import { section2Api } from '../../services/api';
 import { useDashboard } from '../../context/DashboardContext';
@@ -34,6 +34,21 @@ const CustomTooltip = ({ active, payload }) => {
   );
 };
 
+// ─── Pie slice data label ─────────────────────────────────────
+const renderPieLabel = ({ cx, cy, midAngle, outerRadius, value }) => {
+  if (!value) return null;
+  const RADIAN = Math.PI / 180;
+  const r = outerRadius + 20;
+  const x = cx + r * Math.cos(-midAngle * RADIAN);
+  const y = cy + r * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="#374151" textAnchor={x > cx ? 'start' : 'end'}
+      dominantBaseline="central" fontSize={9} fontWeight={600}>
+      {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
+    </text>
+  );
+};
+
 // ─── Compact Donut Pie (reused for summary cards) ─────────────
 function CompactPie({ slices, palette, onSelect, selectedKey, height = 190 }) {
   if (!slices || slices.length === 0) return null;
@@ -48,6 +63,8 @@ function CompactPie({ slices, palette, onSelect, selectedKey, height = 190 }) {
           cx="50%" cy="50%"
           innerRadius={46} outerRadius={74}
           paddingAngle={2}
+          label={renderPieLabel}
+          labelLine={false}
           onClick={d => onSelect && onSelect(d.key)}
           style={{ cursor: onSelect ? 'pointer' : 'default' }}
         >
@@ -188,6 +205,8 @@ function SectionPie({ slices, palette, onSelect, selectedKey, height = 260 }) {
           cx="50%" cy="46%"
           innerRadius={50} outerRadius={85}
           paddingAngle={2}
+          label={renderPieLabel}
+          labelLine={false}
           onClick={d => onSelect && onSelect(d.key)}
           style={{ cursor: onSelect ? 'pointer' : 'default' }}
         >
@@ -264,6 +283,12 @@ function SectionBar({ slices, palette, onSelect, selectedKey, height = 280, angl
               strokeWidth={selectedKey === entry.key ? 1.5 : 0}
             />
           ))}
+          <LabelList
+            dataKey="value"
+            position="top"
+            style={{ fontSize: 9, fill: '#374151', fontWeight: 600 }}
+            formatter={v => v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}
+          />
         </Bar>
       </BarChart>
     </ResponsiveContainer>
