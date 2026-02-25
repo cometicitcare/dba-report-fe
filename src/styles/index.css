@@ -6,6 +6,8 @@
 
 /* Print header: hidden on screen, shown only when printing */
 .print-header { display: none; }
+/* Print-only block: hidden on screen, shown only when printing */
+.print-only-block { display: none; }
 
 /* ─── Print styles ─────────────────────────────────────── */
 @media print {
@@ -21,7 +23,7 @@
     color: #111 !important;
   }
 
-  /* Remove all shadows, borders-radius, sticky */
+  /* Remove all shadows; keep a thin border so cards are visible */
   * {
     box-shadow: none !important;
     text-shadow: none !important;
@@ -30,12 +32,10 @@
   .rounded-lg, .rounded-2xl, .rounded-xl, .rounded-full { border-radius: 4px !important; }
 
   /* ── 3. Expand ALL scroll / height-limited containers ── */
-  /* Tailwind max-h classes */
   [class*="max-h-"] {
     max-height: none !important;
     height: auto !important;
   }
-  /* Tailwind overflow classes */
   [class*="overflow-y-auto"],
   [class*="overflow-auto"],
   [class*="overflow-x-auto"] {
@@ -43,14 +43,13 @@
     height: auto !important;
     max-height: none !important;
   }
-  /* CardContent scroll wrappers */
   .overflow-y-auto, .overflow-auto, .overflow-x-auto {
     overflow: visible !important;
     max-height: none !important;
     height: auto !important;
   }
 
-  /* ── 4. Show print-only header ───────────────────────── */
+  /* ── 4. Show print-only elements ─────────────────────── */
   .print-header {
     display: flex !important;
     align-items: center;
@@ -59,6 +58,7 @@
     border-bottom: 2.5px solid #d97706;
     margin-bottom: 18px;
   }
+  .print-only-block { display: block !important; }
 
   /* ── 5. Tables ───────────────────────────────────────── */
   table {
@@ -84,22 +84,110 @@
   .bg-white { background: white !important; }
   .border { border: 1px solid #e5e7eb !important; }
 
-  /* ── 7. Page breaks ──────────────────────────────────── */
+  /* 2 summaries per row on A4 portrait — easier to read than 3-col */
+  .xl\:grid-cols-3,
+  .lg\:grid-cols-3,
+  .grid.grid-cols-1.md\:grid-cols-2.xl\:grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* Province/District and other 2-col grids keep 2 cols */
+  .lg\:grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* ── 7. Charts — Recharts SVG print fix ─────────────────
+     Recharts bakes JS-measured pixel dimensions into SVGs.
+     Strategy for print:
+       • Give wrapper + SVG an explicit, smaller height (150px).
+       • HIDE the legend — stat pills below already list every
+         item with label + value, so legend is redundant and
+         only causes text overlap.
+       • Hide tooltip (useless on paper).
+       • Keep pie/bar fill colours.                           */
+
+  .recharts-responsive-container {
+    width: 100% !important;
+    height: 150px !important;
+    min-height: 150px !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .recharts-wrapper {
+    width: 100% !important;
+    height: 150px !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .recharts-wrapper > svg {
+    width: 100% !important;
+    height: 150px !important;
+    display: block !important;
+  }
+
+  /* Hide legend + tooltip — no overlap, no wasted space */
+  .recharts-legend-wrapper,
+  .recharts-tooltip-wrapper { display: none !important; }
+
+  /* Keep coloured pie/bar fills */
+  .recharts-pie-sector path,
+  .recharts-bar-rectangle path,
+  .recharts-cell { opacity: 1 !important; }
+
+  /* ── 8. Font-size reductions for print ──────────────────
+     Shrink all text so everything fits without crowding.   */
+
+  /* Card gradient header */
+  .bg-gradient-to-r h3 { font-size: 8pt !important; }
+  .bg-gradient-to-r p  { font-size: 7pt !important; }
+
+  /* Stat pill values (text-2xl on screen → compact for print) */
+  .text-2xl { font-size: 11pt !important; }
+  .text-xl  { font-size: 10pt !important; }
+
+  /* Stat pill labels */
+  .text-xs  { font-size: 7pt  !important; }
+  .text-sm  { font-size: 8pt  !important; }
+
+  /* Section heading labels */
+  .uppercase.tracking-wider { font-size: 7pt !important; }
+
+  /* Table cells already set to 9pt — keep */
+  th, td { font-size: 8pt !important; }
+
+  /* Stat pills: display as a 2-col grid inline */
+  .grid.grid-cols-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Reduce stat pill padding so pills are compact */
+  .border-l-4.border.border-gray-100 {
+    padding: 4px 6px !important;
+  }
+
+  /* ── 8. Page breaks ────────────────────────────────────── */
   .space-y-6 > *, .space-y-4 > * { break-inside: avoid; }
   h3, h4 { break-after: avoid; }
+  /* Each card avoids breaking across pages */
+  .bg-white.rounded-2xl,
+  .bg-white.rounded-xl { break-inside: avoid; page-break-inside: avoid; }
 
-  /* ── 8. Colour printing for coloured headers ─────────── */
-  [class*="bg-gradient"] {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    color-adjust: exact;
+  /* ── 9. Colour printing for coloured headers ─────────── */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
+  [class*="bg-gradient"],
   [class*="from-amber"], [class*="from-violet"], [class*="from-blue"],
-  [class*="from-teal"], [class*="from-pink"], [class*="from-indigo"] {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  [class*="from-teal"],  [class*="from-pink"],   [class*="from-indigo"],
+  [class*="from-emerald"], [class*="from-rose"] {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
+  /* ── 10. Page size — portrait with 2-col layout */
   @page { margin: 14mm 12mm; size: A4 portrait; }
 }
 
