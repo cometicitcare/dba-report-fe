@@ -68,19 +68,19 @@ api.interceptors.response.use(
 export const section1Api = {
   // Get complete Section 1 overview
   getOverview: (filters = {}) =>
-    api.get('/section1', { params: filters }),
+    api.get('/section1/', { params: filters }),
 
   // Get Summary A - Types (Bhikkhu, High Education, Silmatha)
   getSummaryA: (filters = {}) =>
-    api.get('/section1/types', { params: filters }),
+    api.get('/section1/types/', { params: filters }),
 
   // Get Summary B - By Nikaya
   getSummaryB: (filters = {}) =>
-    api.get('/section1/nikaya', { params: filters }),
+    api.get('/section1/nikaya/', { params: filters }),
 
   // Get Summary C - By Grades
   getSummaryC: (filters = {}) =>
-    api.get('/section1/grades', { params: filters }),
+    api.get('/section1/grades/', { params: filters }),
 };
 
 // ============================================
@@ -90,31 +90,31 @@ export const section1Api = {
 export const section2Api = {
   // Get complete Section 2 data
   getAll: (filters = {}) =>
-    api.get('/section2', { params: filters }),
+    api.get('/section2/', { params: filters }),
 
   // Get Bhikku type details  
   getBhikkuTypes: (filters = {}) =>
-    api.get('/section2/bikku-types', { params: filters }),
+    api.get('/section2/bikku-types/', { params: filters }),
 
   // Get Dahampasal summary
   getDahampasal: (filters = {}) =>
-    api.get('/section2/dahampasal', { params: filters }),
+    api.get('/section2/dahampasal/', { params: filters }),
 
   // Get Dahampasal teachers
   getTeachers: (filters = {}) =>
-    api.get('/section2/teachers', { params: filters }),
+    api.get('/section2/teachers/', { params: filters }),
 
   // Get Dahampasal students
   getStudents: (filters = {}) =>
-    api.get('/section2/students', { params: filters }),
+    api.get('/section2/students/', { params: filters }),
 
   // Get Province summary
   getProvinces: (filters = {}) =>
-    api.get('/section2/provinces', { params: filters }),
+    api.get('/section2/provinces/', { params: filters }),
 
   // Get District summary with province filter
   getDistricts: (provinceCode, filters = {}) =>
-    api.get('/section2/districts', { params: { province_code: provinceCode, ...filters } }),
+    api.get('/section2/districts/', { params: { province_code: provinceCode, ...filters } }),
 };
 
 // ============================================
