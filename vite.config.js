@@ -11,6 +11,24 @@ export default defineConfig(({ mode }) => {
   const apiUrl = env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
   const backendOrigin = apiUrl.replace(/\/api\/v1.*$/, '')
 
+  // Build allowed hosts dynamically:
+  //  - Always allow localhost variants
+  //  - Extract the hostname from VITE_API_BASE_URL (covers the API domain)
+  //  - Accept extra comma-separated hosts via VITE_ALLOWED_HOSTS env var
+  //    e.g. VITE_ALLOWED_HOSTS=reports.dbagovlk.com,dba-report-fe-production.up.railway.app
+  const extraHosts = env.VITE_ALLOWED_HOSTS
+    ? env.VITE_ALLOWED_HOSTS.split(',').map(h => h.trim()).filter(Boolean)
+    : []
+  const apiHostname = (() => {
+    try { return new URL(backendOrigin).hostname } catch { return null }
+  })()
+  const allowedHosts = [
+    'localhost',
+    '127.0.0.1',
+    ...(apiHostname && apiHostname !== 'localhost' && apiHostname !== '127.0.0.1' ? [apiHostname] : []),
+    ...extraHosts,
+  ]
+
   return {
     plugins: [react()],
     server: {
@@ -27,6 +45,7 @@ export default defineConfig(({ mode }) => {
       // Used by "vite preview" (Railway start command)
       port: process.env.PORT ? parseInt(process.env.PORT) : 4173,
       host: '0.0.0.0',
+      allowedHosts,
     },
     build: {
       outDir: 'dist',
